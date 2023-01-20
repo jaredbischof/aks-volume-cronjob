@@ -1,4 +1,4 @@
-# kubernetes-volume-backup
+# kubernetes-file-backup
 
 This repository will contain a Go program for copying a file out of a Kubernetes pod running in the same cluster. The helm chart in this repo will be tested on an Azure Kubernetes Service (AKS) cluster and use an Azure Blob Storage volume for storing file backups, but the same application could be used (with a modified helm chart) on any Kubernetes cluster.
 
