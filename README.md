@@ -5,6 +5,7 @@ This repository will contain a Go program for copying a file out of a Kubernetes
 The purpose of backing up individual files from a pod running in Kubernetes is for operating applications like Prometheus that are designed to generate a snapshot on their local file system when an admin sends an HTTP request the admin API. This could also be used with Elasticsearch snapshots. However, Elasticsearch also has built-in support for sending snapshots to cloud storage providers, whereas Prometheus currently does not.
 
 This repository will include the following:
+- Golang application for copying files from a pod in the cluster to a volume mounted file system
 - Dockerfile to compile and run our application
 - Helm chart to deploy the application to Kubernetes
 
