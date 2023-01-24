@@ -14,3 +14,5 @@ The helm chart will include the following:
 - Service Account token to allow our application to access another pod in the cluster
 - Dynamically generated CronJobs for running each of the backup schedules defined in our values.yaml
 - Options for the list of pod files to backup, their backup schedule, where to store them, and whether to delete the source files after backup
+
+This application utilizes the Kubernetes client-go package maintained at: https://github.com/kubernetes/client-go
