@@ -11,7 +11,7 @@ jobs:
       repository: ghcr.io/jaredbischof/kubernetes-file-backup
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
-      tag: "main"
+      tag: "0.2.0"
     schedule: "* * * * *"
     concurrencyPolicy: Forbid
     restartPolicy: OnFailure
