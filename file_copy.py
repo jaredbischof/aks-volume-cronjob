@@ -10,9 +10,9 @@ def main():
         raise SystemExit(e)
 
     if reponse.ok:
-        print response.status_code
+        print(response.status_code)
     else:
-        print "Response was not okay." + status_code
+        print("Response was not okay." + status_code)
 
     config.load_incluster_config()
 
