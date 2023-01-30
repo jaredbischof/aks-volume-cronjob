@@ -1,5 +1,6 @@
 import requests
 from kubernetes import client, config
+from kubernetes.stream import stream
 
 def main():
     prom_url = 'http://tartarus-prometheus.monitoring.svc.cluster.local:9090/api/v1/admin/tsdb/snapshot'
