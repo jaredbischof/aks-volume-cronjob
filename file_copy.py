@@ -20,11 +20,18 @@ def main():
 
     v1 = client.CoreV1Api()
 
-    print("Listing pods with their IPs:")
-    ret = v1.list_pod_for_all_namespaces(watch=False)
-    for i in ret.items:
-        print("%s\t%s\t%s" %
-              (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
+    exec_command = [
+        '/bin/sh',
+        '-c',
+        '/bin/ls /prometheus/snapshots']
+
+    resp = stream(v1.connect_get_namespaced_pod_exec,
+                  'prometheus-tartarus-prometheus-0',
+                  'monitoring',
+                  command=exec_command,
+                  stderr=True, stdin=False,
+                  stdout=True, tty=False)
+    print("Response: " + resp)
 
 if __name__ == '__main__':
     main()
