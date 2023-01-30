@@ -9,10 +9,12 @@ def main():
     except requests.exceptions.RequestException as e:  # This is the correct syntax
         raise SystemExit(e)
 
-    if reponse.ok:
-        print(response.status_code)
+    if response.ok:
+        print("Response was OK")
     else:
-        print("Response was not okay." + status_code)
+        print("Response was not OK")
+
+    print("Status code = " + str(response.status_code))
 
     config.load_incluster_config()
 
