@@ -58,7 +58,7 @@ def main():
                   stdout=True, tty=False)
     md5sum = resp.split(maxsplit = 1)[0]
 
-    dest_path = "./" + snapshot_name + ".tgz"
+    dest_path = "/tmp/" + snapshot_name + ".tgz"
     command_copy = ['tar', 'cf', '-', fp]
     with TemporaryFile() as tar_buffer:
         exec_stream = stream(v1.connect_get_namespaced_pod_exec,
