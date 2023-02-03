@@ -21,9 +21,9 @@ def main():
         raise SystemExit(e)
 
     if response.ok:
-        print("Response was OK")
+        print("Snapshot response was OK")
     else:
-        print("Response was not OK")
+        sys.exit("Snapshot response was NOT OK")
 
     print("Status code = " + str(response.status_code))
     snapshot_name = response.json()['data']['name']
@@ -46,6 +46,11 @@ def main():
                   stdout=True, tty=False)
     print("Response: " + resp)
 
+    if resp.returncode == 0:
+        print("Tar archive created successfully")
+    else:
+        sys.exit("Tar command failed")
+
     # Delete snapshot directory
     dir = "/prometheus/snapshots/" + snapshot_name
     exec_command = [
@@ -61,13 +66,17 @@ def main():
                   stderr=True, stdin=False,
                   stdout=True, tty=False)
 
+    if resp.returncode == 0:
+        print("Snapshot directory deleted")
+    else:
+        sys.exit("Deleting snapshot directory exited with an error")
+
     # Delete old snapshot files
-find Docker* -mtime -4 -exec rm {} \;
     exec_command = [
         '/bin/sh',
         '-c',
 #        "/bin/find /prometheus/snapshots/" + prefix "*tgz -mtime +" + max_age_days + " -exec rm {} \;"]
-        "/bin/find /prometheus/snapshots/" + prefix "*tgz -mmin +" + max_age_min + " -exec rm {} \;"]
+        "/bin/find /prometheus/snapshots/" + prefix + "*tgz -mmin +" + max_age_min + " -exec rm {} \;"]
 
     resp = stream(v1.connect_get_namespaced_pod_exec,
                   'prometheus-tartarus-prometheus-0',
@@ -76,6 +85,11 @@ find Docker* -mtime -4 -exec rm {} \;
                   command=exec_command,
                   stderr=True, stdin=False,
                   stdout=True, tty=False)
+
+    if resp.returncode == 0:
+        print("Command to delete old snapshot tar archives was successful")
+    else:
+        sys.exit("Command to delete old snapshot tar archives exited with an error")
 
 if __name__ == '__main__':
     main()

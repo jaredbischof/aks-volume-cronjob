@@ -6,11 +6,11 @@ image:
   repository: ghcr.io/jaredbischof/kubernetes-file-backup
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.9.0"
+  tag: "0.10.0"
 
 jobs:
-  - name: prometheus-hourly
-    schedule: "0 * * * *"
+  - name: prometheus-5minly
+    schedule: "0/5 * * * *"
     concurrencyPolicy: Forbid
     restartPolicy: OnFailure
     command: ["/usr/local/bin/python3", "/prom-backup.py", "hourly", "180", "http://tartarus-prometheus.monitoring.svc.cluster.local:9090/api/v1/admin/tsdb/snapshot"]
