@@ -3,6 +3,7 @@ import requests
 import sys
 from kubernetes import client, config
 from kubernetes.stream import stream
+from kubernetes.stream.ws_client import ERROR_CHANNEL
 
 def main():
     if len(sys.argv) < 3:
@@ -37,19 +38,22 @@ def main():
         '-c',
         "/bin/tar zcvf /prometheus/snapshots/" + prefix + snapshot_name + ".tgz /prometheus/snapshots/" + snapshot_name]
 
-    resp = stream(v1.connect_get_namespaced_pod_exec,
-                  'prometheus-tartarus-prometheus-0',
-                  'monitoring',
-                  container='prometheus',
-                  command=exec_command,
-                  stderr=True, stdin=False,
-                  stdout=True, tty=False)
-    print("Response: " + resp)
+    sclient = stream(v1.connect_get_namespaced_pod_exec,
+                     'prometheus-tartarus-prometheus-0',
+                     'monitoring',
+                     container='prometheus',
+                     command=exec_command,
+                     stderr=True, stdin=False,
+                     stdout=True, tty=False,
+                     _preload_content=False)
 
-    if resp.returncode == 0:
+    sclient.run_forever()
+
+    if sclient.returncode == 0:
         print("Tar archive created successfully")
     else:
-        sys.exit("Tar command failed")
+        err = sclient.read_channel(ERROR_CHANNEL)
+        sys.exit(yaml.load(err))
 
     # Delete snapshot directory
     dir = "/prometheus/snapshots/" + snapshot_name
@@ -58,18 +62,21 @@ def main():
         '-c',
         "/bin/rm -rf " + dir]
 
-    resp = stream(v1.connect_get_namespaced_pod_exec,
-                  'prometheus-tartarus-prometheus-0',
-                  'monitoring',
-                  container='prometheus',
-                  command=exec_command,
-                  stderr=True, stdin=False,
-                  stdout=True, tty=False)
+    sclient = stream(v1.connect_get_namespaced_pod_exec,
+                     'prometheus-tartarus-prometheus-0',
+                     'monitoring',
+                     container='prometheus',
+                     command=exec_command,
+                     stdout=True, tty=False,
+                     _preload_content=False)
 
-    if resp.returncode == 0:
+    sclient.run_forever() 
+
+    if sclient.returncode == 0: 
         print("Snapshot directory deleted")
-    else:
-        sys.exit("Deleting snapshot directory exited with an error")
+    else: 
+        err = sclient.read_channel(ERROR_CHANNEL)
+        sys.exit(yaml.load(err))
 
     # Delete old snapshot files
     exec_command = [
@@ -78,18 +85,22 @@ def main():
 #        "/bin/find /prometheus/snapshots/" + prefix "*tgz -mtime +" + max_age_days + " -exec rm {} \;"]
         "/bin/find /prometheus/snapshots/" + prefix + "*tgz -mmin +" + max_age_min + " -exec rm {} \;"]
 
-    resp = stream(v1.connect_get_namespaced_pod_exec,
-                  'prometheus-tartarus-prometheus-0',
-                  'monitoring',
-                  container='prometheus',
-                  command=exec_command,
-                  stderr=True, stdin=False,
-                  stdout=True, tty=False)
+    sclient = stream(v1.connect_get_namespaced_pod_exec,
+                     'prometheus-tartarus-prometheus-0',
+                     'monitoring',
+                     container='prometheus',
+                     command=exec_command,
+                     stderr=True, stdin=False,
+                     stdout=True, tty=False,
+                     _preload_content=False)
 
-    if resp.returncode == 0:
+    sclient.run_forever()
+
+    if sclient.returncode == 0:
         print("Command to delete old snapshot tar archives was successful")
     else:
-        sys.exit("Command to delete old snapshot tar archives exited with an error")
+        err = sclient.read_channel(ERROR_CHANNEL)
+        sys.exit(yaml.load(err))
 
 if __name__ == '__main__':
     main()

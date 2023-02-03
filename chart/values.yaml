@@ -6,7 +6,7 @@ image:
   repository: ghcr.io/jaredbischof/kubernetes-file-backup
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.10.0"
+  tag: "0.11.0"
 
 jobs:
   - name: prometheus-5minly
