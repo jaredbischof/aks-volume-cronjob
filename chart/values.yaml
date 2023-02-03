@@ -6,14 +6,44 @@ image:
   repository: ghcr.io/jaredbischof/kubernetes-file-backup
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.11.0"
+  tag: "0.12.0"
 
 jobs:
-  - name: prometheus-5minly
-    schedule: "0/5 * * * *"
+  - name: prometheus-daily
+    schedule: "0 0 * * *"  # This runs every day at midnight
     concurrencyPolicy: Forbid
     restartPolicy: OnFailure
-    command: ["/usr/local/bin/python3", "/prom-backup.py", "hourly", "180", "http://tartarus-prometheus.monitoring.svc.cluster.local:9090/api/v1/admin/tsdb/snapshot"]
+    command: ["/usr/local/bin/python3", "prom-backup.py", "daily-", "7", "http://tartarus-prometheus.monitoring.svc.cluster.local:9090/api/v1/admin/tsdb/snapshot"]
+    serviceAccount:
+      # Specifies whether a service account should be created
+      create: "true"
+      # Annotations to add to the service account
+      annotations: {}
+    rbac: true
+    rules:
+    - apiGroups: [""]
+      resources: ["pods/exec"]
+      verbs: ["create", "get"]
+  - name: prometheus-weekly
+    schedule: "0 1 * * 0"  # This runs every Sunday at 1am
+    concurrencyPolicy: Forbid
+    restartPolicy: OnFailure
+    command: ["/usr/local/bin/python3", "prom-backup.py", "weekly-", "42", "http://tartarus-prometheus.monitoring.svc.cluster.local:9090/api/v1/admin/tsdb/snapshot"]
+    serviceAccount:
+      # Specifies whether a service account should be created
+      create: "true"
+      # Annotations to add to the service account
+      annotations: {}
+    rbac: true
+    rules:
+    - apiGroups: [""]
+      resources: ["pods/exec"]
+      verbs: ["create", "get"]
+  - name: prometheus-monthly
+    schedule: "0 2 1 * *"  # This runs the 1st of every month at 2am
+    concurrencyPolicy: Forbid
+    restartPolicy: OnFailure
+    command: ["/usr/local/bin/python3", "prom-backup.py", "monthly-", "365", "http://tartarus-prometheus.monitoring.svc.cluster.local:9090/api/v1/admin/tsdb/snapshot"]
     serviceAccount:
       # Specifies whether a service account should be created
       create: "true"
