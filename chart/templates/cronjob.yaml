@@ -17,8 +17,8 @@ spec:
           serviceAccountName: {{ include "backup.fullname" $ }}-{{ $job.name }}
         {{- end }}
           containers:
-          - image: "{{ $job.image.repository }}:{{ $job.image.tag }}"
-            imagePullPolicy: {{ $job.image.imagePullPolicy }}
+          - image: {{ include "backup.image.repository" }}:{{ include "backup.image.tag" }}
+            imagePullPolicy: {{ include "backup.image.pullPolicy" }}
             name: {{ $job.name }}
             command:
             - /bin/sh
@@ -26,7 +26,7 @@ spec:
             - |
               until curl -fsI http://localhost:15021/healthz/ready; do echo \"Waiting for Sidecar...\"; sleep 3; done;
               echo \"Sidecar available. Running the command...\";
-              /usr/local/bin/python3 /file_copy.py;
+              /usr/local/bin/python3 prom-backup.py hourly 180 http://tartarus-prometheus.monitoring.svc.cluster.local:9090/api/v1/admin/tsdb/snapshot
               x=$(echo $?); curl -fsI -X POST http://localhost:15020/quitquitquit && exit $x
 
             {{- with $job.volumeMounts }}
