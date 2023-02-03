@@ -1,3 +1,6 @@
+{{- $repository := .Values.image.repository }}
+{{- $tag := .Values.image.tag }}
+{{- $pullPolicy := .Values.image.pullPolicy }}
 {{- range $job := .Values.jobs }}
 ---
 apiVersion: batch/v1
@@ -17,8 +20,8 @@ spec:
           serviceAccountName: {{ include "backup.fullname" $ }}-{{ $job.name }}
         {{- end }}
           containers:
-          - image: {{ include "backup.image.repository" }}:{{ include "backup.image.tag" }}
-            imagePullPolicy: {{ include "backup.image.pullPolicy" }}
+          - image: {{ $repository }}:{{ $tag }}
+            imagePullPolicy: {{ $pullPolicy }}
             name: {{ $job.name }}
             command:
             - /bin/sh
